@@ -1,0 +1,39 @@
+version: "1"
+name: Network latency injection
+description: |
+  Injects 200ms of artificial latency with 50ms jitter on the primary interface.
+  Validates that timeouts, retries, and user experience are acceptable under high latency.
+labels:
+  phase: "1"
+  env: staging
+
+hypothesis:
+  title: API p99 latency stays below 2s under network latency injection
+  probes:
+    - type: http
+      url: http://localhost:8080/healthz
+      expected_status: 200
+      timeout: 3s
+
+method:
+  - type: fault
+    name: Add 200ms latency
+    target:
+      kind: process
+      selector:
+        name: api
+    fault:
+      kind: network-latency
+      params:
+        interface: eth0
+        latency: 200ms
+        jitter: 50ms
+    duration: 60s
+    rollback: auto
+
+controls:
+  blast_radius:
+    max_targets: 1
+  timeout: 3m
+  environments:
+    - staging

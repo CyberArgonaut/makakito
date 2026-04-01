@@ -1,0 +1,52 @@
+version: 2
+
+project_name: chaos
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: chaos
+    binary: chaos
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/CyberArgonaut/makakito/cmd.version={{.Version}}
+      - -X github.com/CyberArgonaut/makakito/cmd.commit={{.Commit}}
+      - -X github.com/CyberArgonaut/makakito/cmd.date={{.Date}}
+
+archives:
+  - id: chaos
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - experiments/**
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - Merge pull request
+      - Merge branch

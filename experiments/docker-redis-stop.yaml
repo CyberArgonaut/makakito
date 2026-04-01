@@ -1,0 +1,36 @@
+version: "1"
+name: Redis blackout
+description: |
+  Stops the Redis container and verifies the application degrades gracefully.
+  The API should return 200 with a cache-miss fallback during the outage.
+labels:
+  phase: "1"
+  env: staging
+  team: platform
+
+hypothesis:
+  title: API returns 200 with cache-miss fallback during Redis outage
+  probes:
+    - type: http
+      url: http://localhost:8080/healthz
+      expected_status: 200
+      timeout: 5s
+
+method:
+  - type: fault
+    name: Stop Redis container
+    target:
+      kind: docker
+      selector:
+        name: redis
+    fault:
+      kind: container-stop
+    duration: 60s
+    rollback: auto
+
+controls:
+  blast_radius:
+    max_targets: 1
+  timeout: 3m
+  environments:
+    - staging

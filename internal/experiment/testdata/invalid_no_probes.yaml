@@ -1,0 +1,13 @@
+version: "1"
+name: No probes experiment
+hypothesis:
+  title: steady state
+  probes: []
+method:
+  - type: fault
+    name: stop something
+    target:
+      kind: docker
+    fault:
+      kind: container-stop
+    duration: 30s
