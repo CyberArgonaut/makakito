@@ -12,7 +12,7 @@ import (
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "chaos",
+	Use:   "makakito",
 	Short: "Chaos engineering toolkit for small DevOps teams",
 	Long:  "makakito — Define chaos experiments in YAML, run them from a single binary, review results in an embedded dashboard.",
 }

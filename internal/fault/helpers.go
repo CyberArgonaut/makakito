@@ -1,11 +1,11 @@
 package fault
 
-import "github.com/docker/docker/api/types/container"
+import "github.com/CyberArgonaut/makakito/internal/docker"
 
-func containerStopOptions() container.StopOptions {
-	return container.StopOptions{}
+func containerStopOptions() docker.StopOptions {
+	return docker.StopOptions{}
 }
 
-func containerStartOptions() container.StartOptions {
-	return container.StartOptions{}
+func containerStartOptions() docker.StartOptions {
+	return docker.StartOptions{}
 }

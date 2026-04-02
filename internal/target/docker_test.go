@@ -5,28 +5,27 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/CyberArgonaut/makakito/internal/docker"
 	"github.com/CyberArgonaut/makakito/internal/engine"
-	dockertypes "github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
 )
 
 type mockDockerAPI struct {
-	containers []container.Summary
+	containers []docker.ContainerSummary
 	pingErr    error
 	listErr    error
 }
 
-func (m *mockDockerAPI) ContainerList(_ context.Context, _ container.ListOptions) ([]container.Summary, error) {
+func (m *mockDockerAPI) ContainerList(_ context.Context, _ docker.ListOptions) ([]docker.ContainerSummary, error) {
 	return m.containers, m.listErr
 }
 
-func (m *mockDockerAPI) Ping(_ context.Context) (dockertypes.Ping, error) {
-	return dockertypes.Ping{}, m.pingErr
+func (m *mockDockerAPI) Ping(_ context.Context) (docker.Ping, error) {
+	return docker.Ping{}, m.pingErr
 }
 
 func TestDockerTargetResolveByName(t *testing.T) {
 	mock := &mockDockerAPI{
-		containers: []container.Summary{
+		containers: []docker.ContainerSummary{
 			{ID: "abc123", Names: []string{"/redis"}, Labels: map[string]string{}},
 			{ID: "def456", Names: []string{"/postgres"}, Labels: map[string]string{}},
 		},
@@ -46,7 +45,7 @@ func TestDockerTargetResolveByName(t *testing.T) {
 
 func TestDockerTargetResolveByLabel(t *testing.T) {
 	mock := &mockDockerAPI{
-		containers: []container.Summary{
+		containers: []docker.ContainerSummary{
 			{ID: "abc", Names: []string{"/app"}, Labels: map[string]string{"env": "prod", "team": "platform"}},
 			{ID: "def", Names: []string{"/worker"}, Labels: map[string]string{"env": "staging"}},
 		},
@@ -63,7 +62,7 @@ func TestDockerTargetResolveByLabel(t *testing.T) {
 
 func TestDockerTargetResolveByID(t *testing.T) {
 	mock := &mockDockerAPI{
-		containers: []container.Summary{
+		containers: []docker.ContainerSummary{
 			{ID: "abc123def", Names: []string{"/app"}, Labels: map[string]string{}},
 			{ID: "xyz789", Names: []string{"/worker"}, Labels: map[string]string{}},
 		},
@@ -80,7 +79,7 @@ func TestDockerTargetResolveByID(t *testing.T) {
 
 func TestDockerTargetResolveEmpty(t *testing.T) {
 	mock := &mockDockerAPI{
-		containers: []container.Summary{
+		containers: []docker.ContainerSummary{
 			{ID: "abc", Names: []string{"/postgres"}, Labels: map[string]string{}},
 		},
 	}

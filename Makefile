@@ -1,4 +1,4 @@
-BINARY := chaos
+BINARY := makakito
 BUILD_DIR := bin
 MODULE := github.com/CyberArgonaut/makakito
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
@@ -36,3 +36,6 @@ dev-setup:
 	@echo "Installing golangci-lint..."
 	@which golangci-lint > /dev/null 2>&1 || go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	@echo "Dev setup complete."
+
+vulncheck:
+	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
