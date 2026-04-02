@@ -77,7 +77,7 @@ func (c *Client) ContainerList(ctx context.Context, opts ListOptions) ([]Contain
 	if opts.All {
 		all = "true"
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/containers/json?all="+all, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/containers/json?all="+all, http.NoBody)
 	if err != nil {
 		return nil, fmt.Errorf("building container list request: %w", err)
 	}
@@ -85,7 +85,7 @@ func (c *Client) ContainerList(ctx context.Context, opts ListOptions) ([]Contain
 	if err != nil {
 		return nil, fmt.Errorf("listing containers: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("docker API error listing containers: %s", resp.Status)
 	}
@@ -95,14 +95,14 @@ func (c *Client) ContainerList(ctx context.Context, opts ListOptions) ([]Contain
 	}
 	out := make([]ContainerSummary, len(raw))
 	for i, r := range raw {
-		out[i] = ContainerSummary{ID: r.ID, Names: r.Names, Labels: r.Labels}
+		out[i] = ContainerSummary(r)
 	}
 	return out, nil
 }
 
 // Ping checks that the Docker daemon is reachable.
 func (c *Client) Ping(ctx context.Context) (Ping, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/_ping", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/_ping", http.NoBody)
 	if err != nil {
 		return Ping{}, fmt.Errorf("building ping request: %w", err)
 	}
@@ -110,7 +110,7 @@ func (c *Client) Ping(ctx context.Context) (Ping, error) {
 	if err != nil {
 		return Ping{}, fmt.Errorf("pinging docker daemon: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		return Ping{}, fmt.Errorf("docker daemon ping returned: %s", resp.Status)
 	}
@@ -138,7 +138,7 @@ func (c *Client) ContainerUnpause(ctx context.Context, containerID string) error
 }
 
 func (c *Client) post(ctx context.Context, path string) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, http.NoBody)
 	if err != nil {
 		return fmt.Errorf("building request for %s: %w", path, err)
 	}
@@ -146,7 +146,7 @@ func (c *Client) post(ctx context.Context, path string) error {
 	if err != nil {
 		return fmt.Errorf("docker API call %s: %w", path, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("docker API %s returned: %s", path, resp.Status)
 	}
