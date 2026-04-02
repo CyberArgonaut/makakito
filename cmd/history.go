@@ -22,7 +22,7 @@ var historyCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("opening store: %w", err)
 		}
-		defer st.Close() //nolint:errcheck
+		defer st.Close() //nolint:errcheck // best-effort close; error not actionable at defer time
 
 		var results []schema.ExperimentResult
 		if statusFilter != "" {

@@ -2,6 +2,7 @@ version: "2"
 
 run:
   timeout: 5m
+  go: "1.26.1"
 
 linters:
   enable:
@@ -14,26 +15,24 @@ linters:
     - errorlint
     - bodyclose
     - noctx
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - style
-      - performance
-  revive:
+  settings:
+    errcheck:
+      check-type-assertions: true
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+  exclusions:
     rules:
-      - name: exported
-        disabled: true
+      - path: _test\.go
+        linters:
+          - errcheck
 
 formatters:
   enable:
     - gofmt
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck

@@ -17,7 +17,7 @@ func NewNetemDriver() *NetemDriver {
 }
 
 // AddLatency adds latency+jitter to the given interface via tc-netem.
-func (d *NetemDriver) AddLatency(_ context.Context, iface string, latency time.Duration, jitter time.Duration) error {
+func (d *NetemDriver) AddLatency(_ context.Context, iface string, latency, jitter time.Duration) error {
 	link, err := netlink.LinkByName(iface)
 	if err != nil {
 		return fmt.Errorf("netem: finding interface %q: %w", iface, err)

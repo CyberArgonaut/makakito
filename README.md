@@ -63,7 +63,7 @@ curl -L https://github.com/CyberArgonaut/makakito/releases/latest/download/chaos
 chaos version
 ```
 
-**Build from source** (requires Go 1.25+):
+**Build from source** (requires Go 1.26+):
 
 ```bash
 git clone https://github.com/CyberArgonaut/makakito

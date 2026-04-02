@@ -18,7 +18,7 @@ var rollbackCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("opening store: %w", err)
 		}
-		defer st.Close() //nolint:errcheck
+		defer st.Close() //nolint:errcheck // best-effort close; error not actionable at defer time
 
 		result, err := st.Get(cmd.Context(), id)
 		if err != nil {

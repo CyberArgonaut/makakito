@@ -25,7 +25,7 @@ func testStore(t *testing.T) store.Store {
 	if err != nil {
 		t.Fatalf("store: %v", err)
 	}
-	t.Cleanup(func() { s.Close() }) //nolint:errcheck
+	t.Cleanup(func() { s.Close() }) //nolint:errcheck // best-effort close in test cleanup
 	return s
 }
 

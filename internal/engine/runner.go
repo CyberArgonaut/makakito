@@ -95,7 +95,7 @@ func (r *Runner) Run(ctx context.Context, exp *schema.Experiment, cfg RunnerConf
 
 	// Safety Rule #2: always call rollbacks — even on panic.
 	rollbacks := NewRollbackStack(r.logger)
-	var panicVal interface{}
+	var panicVal any
 	func() {
 		defer func() {
 			panicVal = recover()
@@ -130,13 +130,13 @@ func (r *Runner) runExperiment(
 	}
 
 	// Execute each action.
-	for _, action := range exp.Method {
+	for i := range exp.Method {
 		if ctx.Err() != nil {
 			result.Status = schema.StatusAborted
 			result.Error = "experiment timed out or was cancelled"
 			return
 		}
-		if err := r.runAction(ctx, action, exp.Controls.BlastRadius, cfg, result, rollbacks); err != nil {
+		if err := r.runAction(ctx, &exp.Method[i], exp.Controls.BlastRadius, cfg, result, rollbacks); err != nil {
 			result.Status = schema.StatusError
 			result.Error = err.Error()
 			return
@@ -155,7 +155,7 @@ func (r *Runner) runExperiment(
 
 func (r *Runner) runAction(
 	ctx context.Context,
-	action schema.Action,
+	action *schema.Action,
 	blastRadius schema.BlastRadius,
 	cfg RunnerConfig,
 	result *schema.ExperimentResult,
@@ -249,22 +249,22 @@ func (r *Runner) runProbes(
 	result *schema.ExperimentResult,
 ) bool {
 	allPassed := true
-	for _, spec := range probeSpecs {
-		probe, err := r.probes.Get(spec.Type)
+	for i := range probeSpecs {
+		probe, err := r.probes.Get(probeSpecs[i].Type)
 		if err != nil {
-			r.logger.Error("unknown probe type", "type", spec.Type)
+			r.logger.Error("unknown probe type", "type", probeSpecs[i].Type)
 			allPassed = false
 			continue
 		}
 
-		params := probeParams(spec)
+		params := probeParams(&probeSpecs[i])
 		pr, err := probe.Check(ctx, params)
 		checkedAt := time.Now().UTC()
 
 		var probeResult schema.ProbeResult
 		if err != nil {
 			probeResult = schema.ProbeResult{
-				ProbeType: spec.Type,
+				ProbeType: probeSpecs[i].Type,
 				Success:   false,
 				Message:   err.Error(),
 				CheckedAt: checkedAt,
@@ -273,7 +273,7 @@ func (r *Runner) runProbes(
 			allPassed = false
 		} else {
 			probeResult = schema.ProbeResult{
-				ProbeType: spec.Type,
+				ProbeType: probeSpecs[i].Type,
 				Success:   pr.Success,
 				Message:   pr.Message,
 				CheckedAt: checkedAt,
@@ -285,7 +285,7 @@ func (r *Runner) runProbes(
 		}
 
 		r.logger.Info("probe result",
-			"type", spec.Type,
+			"type", probeSpecs[i].Type,
 			"phase", phase,
 			"success", probeResult.Success,
 			"message", probeResult.Message,
@@ -303,7 +303,7 @@ func (r *Runner) finalize(result *schema.ExperimentResult) {
 	}
 }
 
-func probeParams(spec schema.ProbeSpec) Params {
+func probeParams(spec *schema.ProbeSpec) Params {
 	params := Params{}
 	if spec.URL != "" {
 		params["url"] = spec.URL

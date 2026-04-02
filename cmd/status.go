@@ -20,7 +20,7 @@ var statusCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("opening store: %w", err)
 		}
-		defer st.Close() //nolint:errcheck
+		defer st.Close() //nolint:errcheck // best-effort close; error not actionable at defer time
 
 		results, err := st.ListByStatus(cmd.Context(), schema.StatusRunning, 50)
 		if err != nil {

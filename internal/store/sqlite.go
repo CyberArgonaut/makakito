@@ -26,13 +26,13 @@ func NewSQLiteStore(dbPath string) (*SQLiteStore, error) {
 
 	// Enable WAL mode for concurrent reads.
 	if _, err := db.ExecContext(context.Background(), "PRAGMA journal_mode=WAL"); err != nil {
-		db.Close() //nolint:errcheck
+		db.Close() //nolint:errcheck // best-effort cleanup on init failure
 		return nil, fmt.Errorf("enabling WAL mode: %w", err)
 	}
 
 	s := &SQLiteStore{db: db}
 	if err := s.Init(context.Background()); err != nil {
-		db.Close() //nolint:errcheck
+		db.Close() //nolint:errcheck // best-effort cleanup on init failure
 		return nil, err
 	}
 	return s, nil
