@@ -1,0 +1,15 @@
+version: "1"
+hypothesis:
+  title: steady state
+  probes:
+    - type: http
+      url: http://localhost/health
+      expected_status: 200
+method:
+  - type: fault
+    name: stop something
+    target:
+      kind: docker
+    fault:
+      kind: container-stop
+    duration: 30s

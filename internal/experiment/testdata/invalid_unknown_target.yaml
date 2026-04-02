@@ -1,0 +1,16 @@
+version: "1"
+name: Unknown target
+hypothesis:
+  title: steady state
+  probes:
+    - type: http
+      url: http://localhost/health
+      expected_status: 200
+method:
+  - type: fault
+    name: break something
+    target:
+      kind: invalidkind
+    fault:
+      kind: container-stop
+    duration: 30s

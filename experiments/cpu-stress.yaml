@@ -1,0 +1,37 @@
+version: "1"
+name: CPU stress test
+description: |
+  Applies CPU stress to validate application behavior under resource contention.
+  The service should remain responsive even when CPUs are saturated.
+labels:
+  phase: "1"
+  env: staging
+
+hypothesis:
+  title: API remains responsive under CPU saturation
+  probes:
+    - type: http
+      url: http://localhost:8080/healthz
+      expected_status: 200
+      timeout: 10s
+
+method:
+  - type: fault
+    name: Saturate CPUs
+    target:
+      kind: process
+      selector:
+        name: api
+    fault:
+      kind: cpu
+      params:
+        cores: "2"
+    duration: 60s
+    rollback: auto
+
+controls:
+  blast_radius:
+    max_targets: 1
+  timeout: 3m
+  environments:
+    - staging

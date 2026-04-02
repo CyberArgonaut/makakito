@@ -1,0 +1,35 @@
+version: "1"
+name: Container pause — dependency freeze
+description: |
+  Pauses a dependency container to simulate a hung/frozen service.
+  The application should handle the unresponsive dependency gracefully.
+labels:
+  phase: "1"
+  env: staging
+
+hypothesis:
+  title: API remains responsive when dependency is paused
+  probes:
+    - type: http
+      url: http://localhost:8080/healthz
+      expected_status: 200
+      timeout: 5s
+
+method:
+  - type: fault
+    name: Pause dependency container
+    target:
+      kind: docker
+      selector:
+        name: postgres
+    fault:
+      kind: container-pause
+    duration: 30s
+    rollback: auto
+
+controls:
+  blast_radius:
+    max_targets: 1
+  timeout: 3m
+  environments:
+    - staging
