@@ -38,19 +38,19 @@ func (t *DockerTarget) Resolve(ctx context.Context, sel engine.Selector) ([]engi
 	}
 
 	var resources []engine.Resource
-	for _, c := range containers {
-		if !matchesSelector(c, sel) {
+	for i := range containers {
+		if !matchesSelector(&containers[i], sel) {
 			continue
 		}
 		name := ""
-		if len(c.Names) > 0 {
-			name = strings.TrimPrefix(c.Names[0], "/")
+		if len(containers[i].Names) > 0 {
+			name = strings.TrimPrefix(containers[i].Names[0], "/")
 		}
 		resources = append(resources, engine.Resource{
-			ID:     c.ID,
+			ID:     containers[i].ID,
 			Name:   name,
 			Kind:   "docker",
-			Labels: c.Labels,
+			Labels: containers[i].Labels,
 		})
 	}
 	return resources, nil
@@ -64,7 +64,7 @@ func (t *DockerTarget) Validate(ctx context.Context) error {
 	return nil
 }
 
-func matchesSelector(c container.Summary, sel engine.Selector) bool {
+func matchesSelector(c *container.Summary, sel engine.Selector) bool {
 	if name, ok := sel["name"]; ok {
 		matched := false
 		for _, n := range c.Names {

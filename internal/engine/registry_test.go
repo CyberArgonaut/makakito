@@ -88,7 +88,7 @@ func TestRegistryConcurrentAccess(_ *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			reg.Get("docker") //nolint:errcheck
+			reg.Get("docker") //nolint:errcheck // return value intentionally discarded in concurrency stress test
 		}()
 	}
 	wg.Wait()

@@ -39,7 +39,7 @@ func (p *HTTPProbe) Check(ctx context.Context, params engine.Params) (engine.Pro
 	}
 
 	client := &http.Client{Timeout: timeout}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return engine.ProbeResult{}, fmt.Errorf("creating request: %w", err)
 	}
@@ -51,7 +51,7 @@ func (p *HTTPProbe) Check(ctx context.Context, params engine.Params) (engine.Pro
 			Message: fmt.Sprintf("request failed: %s", err),
 		}, nil
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:errcheck // best-effort close; error not actionable after reading response
 
 	if resp.StatusCode != expectedStatus {
 		return engine.ProbeResult{

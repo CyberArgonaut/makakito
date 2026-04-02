@@ -15,7 +15,7 @@ func newTestStore(t *testing.T) *SQLiteStore {
 	if err != nil {
 		t.Fatalf("NewSQLiteStore: %v", err)
 	}
-	t.Cleanup(func() { s.Close() }) //nolint:errcheck
+	t.Cleanup(func() { s.Close() }) //nolint:errcheck // best-effort close in test cleanup
 	return s
 }
 
@@ -57,7 +57,7 @@ func TestSQLiteStoreSaveAndGet(t *testing.T) {
 func TestSQLiteStoreList(t *testing.T) {
 	s := newTestStore(t)
 	ctx := context.Background()
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		r := &schema.ExperimentResult{
 			ID:        fmt.Sprintf("exp-%03d", i),
 			Name:      fmt.Sprintf("experiment %d", i),

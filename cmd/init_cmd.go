@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -32,7 +33,7 @@ var initCmd = &cobra.Command{
 			outFile = safeName + ".yaml"
 		}
 
-		if err := os.WriteFile(outFile, []byte(yaml), 0644); err != nil {
+		if err := os.WriteFile(outFile, []byte(yaml), 0o644); err != nil {
 			return fmt.Errorf("writing experiment file: %w", err)
 		}
 
@@ -66,10 +67,8 @@ func promptChoice(r *bufio.Reader, label string, choices []string, defaultVal st
 	if line == "" {
 		return defaultVal
 	}
-	for _, c := range choices {
-		if line == c {
-			return line
-		}
+	if slices.Contains(choices, line) {
+		return line
 	}
 	fmt.Printf("Invalid choice %q, using default %q\n", line, defaultVal)
 	return defaultVal

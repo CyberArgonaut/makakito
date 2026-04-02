@@ -44,7 +44,7 @@ var runCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("opening store: %w", err)
 		}
-		defer st.Close() //nolint:errcheck
+		defer st.Close() //nolint:errcheck // best-effort close; error not actionable at defer time
 
 		runner := buildRunner(st, logger)
 
@@ -103,7 +103,7 @@ func openStore(logger *slog.Logger) (store.Store, error) {
 		home, _ := os.UserHomeDir()
 		dbPath = home + "/.makakito/history.db"
 	}
-	if err := os.MkdirAll(dbPath[:len(dbPath)-len("/history.db")], 0755); err != nil {
+	if err := os.MkdirAll(dbPath[:len(dbPath)-len("/history.db")], 0o755); err != nil {
 		logger.Warn("could not create store directory", "error", err)
 	}
 	return store.NewSQLiteStore(dbPath)
@@ -127,7 +127,7 @@ func newLogger(cmd *cobra.Command) *slog.Logger {
 
 func printResult(result *schema.ExperimentResult, jsonOutput bool) {
 	if jsonOutput {
-		json.NewEncoder(os.Stdout).Encode(result) //nolint:errcheck
+		json.NewEncoder(os.Stdout).Encode(result) //nolint:errcheck // stdout encoding errors are not actionable
 		return
 	}
 

@@ -23,9 +23,7 @@ func EnforceBlastRadius(resources []Resource, controls schema.BlastRadius) []Res
 
 	if controls.Percentage > 0 {
 		pctLimit := int(float64(len(resources)) * float64(controls.Percentage) / 100.0)
-		if pctLimit < 1 {
-			pctLimit = 1
-		}
+		pctLimit = max(pctLimit, 1)
 		if pctLimit < limit {
 			limit = pctLimit
 		}
@@ -38,7 +36,7 @@ func EnforceBlastRadius(resources []Resource, controls schema.BlastRadius) []Res
 	// Random subset selection.
 	shuffled := make([]Resource, len(resources))
 	copy(shuffled, resources)
-	rand.Shuffle(len(shuffled), func(i, j int) { //nolint:gosec
+	rand.Shuffle(len(shuffled), func(i, j int) { //nolint:gosec // non-cryptographic shuffle is intentional for blast radius sampling
 		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
 	})
 	return shuffled[:limit]
