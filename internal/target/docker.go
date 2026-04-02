@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/CyberArgonaut/makakito/internal/docker"
 	"github.com/CyberArgonaut/makakito/internal/engine"
-	dockertypes "github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
 )
 
 // DockerAPI is the subset of the Docker client used by DockerTarget.
 type DockerAPI interface {
-	ContainerList(ctx context.Context, options container.ListOptions) ([]container.Summary, error)
-	Ping(ctx context.Context) (dockertypes.Ping, error)
+	ContainerList(ctx context.Context, options docker.ListOptions) ([]docker.ContainerSummary, error)
+	Ping(ctx context.Context) (docker.Ping, error)
 }
 
 // DockerTarget resolves Docker containers as engine resources.
@@ -30,7 +29,7 @@ func NewDockerTarget(client DockerAPI) *DockerTarget {
 // Resolve returns running containers matching the selector.
 // Selector keys: "name", "label", "id".
 func (t *DockerTarget) Resolve(ctx context.Context, sel engine.Selector) ([]engine.Resource, error) {
-	opts := container.ListOptions{All: false}
+	opts := docker.ListOptions{All: false}
 
 	containers, err := t.client.ContainerList(ctx, opts)
 	if err != nil {
@@ -64,7 +63,7 @@ func (t *DockerTarget) Validate(ctx context.Context) error {
 	return nil
 }
 
-func matchesSelector(c *container.Summary, sel engine.Selector) bool {
+func matchesSelector(c *docker.ContainerSummary, sel engine.Selector) bool {
 	if name, ok := sel["name"]; ok {
 		matched := false
 		for _, n := range c.Names {

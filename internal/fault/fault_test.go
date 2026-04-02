@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/CyberArgonaut/makakito/internal/docker"
 	"github.com/CyberArgonaut/makakito/internal/engine"
-	"github.com/docker/docker/api/types/container"
 )
 
 // --- Mock Docker API ---
@@ -24,11 +24,11 @@ type mockDockerFaultAPI struct {
 	unpauseCalled bool
 }
 
-func (m *mockDockerFaultAPI) ContainerStop(_ context.Context, _ string, _ container.StopOptions) error {
+func (m *mockDockerFaultAPI) ContainerStop(_ context.Context, _ string, _ docker.StopOptions) error {
 	m.stopCalled = true
 	return m.stopErr
 }
-func (m *mockDockerFaultAPI) ContainerStart(_ context.Context, _ string, _ container.StartOptions) error {
+func (m *mockDockerFaultAPI) ContainerStart(_ context.Context, _ string, _ docker.StartOptions) error {
 	m.startCalled = true
 	return m.startErr
 }

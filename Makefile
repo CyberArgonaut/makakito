@@ -1,4 +1,4 @@
-BINARY := chaos
+BINARY := makakito
 BUILD_DIR := bin
 MODULE := github.com/CyberArgonaut/makakito
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")

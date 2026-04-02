@@ -12,7 +12,7 @@
 
 ## How it works
 
-When you run `chaos run experiment.yaml`, the binary:
+When you run `makakito run experiment.yaml`, the binary:
 
 1. **Validates** the experiment file against the schema.
 2. **Checks your steady-state hypothesis** — runs probes (e.g. an HTTP health check) to confirm the system is healthy before anything is touched.
@@ -51,16 +51,16 @@ Nothing runs in the background after the command exits. There is no agent to ins
 
 ```bash
 # amd64
-curl -L https://github.com/CyberArgonaut/makakito/releases/latest/download/chaos_linux_amd64.tar.gz \
-  | tar xz -C /usr/local/bin/ chaos
-chaos version
+curl -L https://github.com/CyberArgonaut/makakito/releases/latest/download/makakito_linux_amd64.tar.gz \
+  | tar xz -C /usr/local/bin/ makakito
+makakito version
 ```
 
 ```bash
 # arm64 (Raspberry Pi, AWS Graviton, etc.)
-curl -L https://github.com/CyberArgonaut/makakito/releases/latest/download/chaos_linux_arm64.tar.gz \
-  | tar xz -C /usr/local/bin/ chaos
-chaos version
+curl -L https://github.com/CyberArgonaut/makakito/releases/latest/download/makakito_linux_arm64.tar.gz \
+  | tar xz -C /usr/local/bin/ makakito
+makakito version
 ```
 
 **Build from source** (requires Go 1.26+):
@@ -69,29 +69,10 @@ chaos version
 git clone https://github.com/CyberArgonaut/makakito
 cd makakito
 make build
-sudo cp bin/chaos /usr/local/bin/
-chaos version
+sudo cp bin/makakito /usr/local/bin/
+makakito version
 ```
 
-### macOS
-
-```bash
-# Homebrew
-brew install makakito
-
-# or download directly
-curl -L https://github.com/CyberArgonaut/makakito/releases/latest/download/chaos_darwin_arm64.tar.gz \
-  | tar xz -C /usr/local/bin/ chaos
-```
-
-### Verify the install
-
-```bash
-chaos version
-# makakito v0.1.0 (commit: abc1234, built: 2026-04-01T00:00:00Z)
-
-chaos --help
-```
 
 ---
 
@@ -99,19 +80,19 @@ chaos --help
 
 ```bash
 # 1. Generate a starter experiment for your stack
-chaos init
+makakito init
 
 # 2. Check the generated file looks right
-chaos validate my-first-chaos-experiment.yaml
+makakito validate my-first-chaos-experiment.yaml
 
 # 3. Simulate without touching anything real
-chaos run --dry-run my-first-chaos-experiment.yaml
+makakito run --dry-run my-first-chaos-experiment.yaml
 
 # 4. Run it for real
-chaos run my-first-chaos-experiment.yaml
+makakito run my-first-chaos-experiment.yaml
 
 # 5. Review what happened
-chaos history
+makakito history
 ```
 
 ---
@@ -148,18 +129,18 @@ method:
     fault:
       kind: container-stop
     duration: 60s
-    rollback: auto        # chaos restarts the container when done
+    rollback: auto        # makakito restarts the container when done
 
 controls:
   blast_radius:
     max_targets: 1        # never stop more than 1 container, even if multiple match
   timeout: 3m             # hard kill-switch — experiment aborts after 3 minutes regardless
   environments:
-    - staging             # chaos refuses to run if --environment is not "staging"
+    - staging             # makakito refuses to run if --environment is not "staging"
 ```
 
 ```bash
-chaos run --environment staging experiments/redis-blackout.yaml
+makakito run --environment staging experiments/redis-blackout.yaml
 
 # time=... level=INFO msg="checking hypothesis (before)" experiment="Redis blackout"
 # time=... level=INFO msg="probe result" type=http phase=before success=true
@@ -174,12 +155,12 @@ chaos run --environment staging experiments/redis-blackout.yaml
 
 ### What happened, step by step
 
-1. chaos called `GET http://staging.myapp.internal/healthz` → got 200. Hypothesis confirmed.
-2. chaos called `POST /containers/redis/stop` on the local Docker socket.
-3. chaos waited 60 seconds.
-4. chaos called `GET http://staging.myapp.internal/healthz` again → got 200. Hypothesis still holds.
-5. chaos called `POST /containers/redis/start` on the Docker socket (auto rollback).
-6. chaos wrote the result to `~/.makakito/history.db`.
+1. makakito called `GET http://staging.myapp.internal/healthz` → got 200. Hypothesis confirmed.
+2. makakito called `POST /containers/redis/stop` on the local Docker socket.
+3. makakito waited 60 seconds.
+4. makakito called `GET http://staging.myapp.internal/healthz` again → got 200. Hypothesis still holds.
+5. makakito called `POST /containers/redis/start` on the Docker socket (auto rollback).
+6. makakito wrote the result to `~/.makakito/history.db`.
 
 ---
 
@@ -193,7 +174,7 @@ chaos run --environment staging experiments/redis-blackout.yaml
 - Roll back nothing (nothing was applied).
 
 ```bash
-chaos run --dry-run experiments/redis-blackout.yaml
+makakito run --dry-run experiments/redis-blackout.yaml
 # [dry-run] Simulating experiment: Redis blackout
 # ... probes run for real, faults are skipped ...
 ```
@@ -261,21 +242,21 @@ hypothesis:
 ## CLI Reference
 
 ```
-chaos version               Print version, commit, and build date
-chaos init                  Wizard: ask a few questions, write a starter experiment YAML
-chaos validate <file>       Parse and validate the YAML — print errors, exit non-zero on failure
-chaos run <file>            Run an experiment
-  --dry-run                 Simulate without applying faults (probes still run)
-  --environment <env>       Assert this environment matches the allowlist
-  --force                   Bypass require_approval (logs a warning)
-  --json                    Print result as JSON
-chaos rollback <id>         Show experiment details (full rollback from CLI coming in v0.2)
-chaos status                List currently running experiments
-chaos history               List past results
-  --limit N                 How many to show (default: 20)
-  --status <status>         Filter: passed, failed, aborted, error
-  --json                    Print as JSON
-chaos dashboard             (v0.2) Launch embedded web UI at localhost:7070
+makakito version               Print version, commit, and build date
+makakito init                  Wizard: ask a few questions, write a starter experiment YAML
+makakito validate <file>       Parse and validate the YAML — print errors, exit non-zero on failure
+makakito run <file>            Run an experiment
+  --dry-run                    Simulate without applying faults (probes still run)
+  --environment <env>          Assert this environment matches the allowlist
+  --force                      Bypass require_approval (logs a warning)
+  --json                       Print result as JSON
+makakito rollback <id>         Show experiment details (full rollback from CLI coming in v0.2)
+makakito status                List currently running experiments
+makakito history               List past results
+  --limit N                    How many to show (default: 20)
+  --status <status>            Filter: passed, failed, aborted, error
+  --json                       Print as JSON
+makakito dashboard             (v0.2) Launch embedded web UI at localhost:7070
 ```
 
 ---
@@ -332,7 +313,7 @@ cd makakito
 make dev-setup    # downloads deps, installs golangci-lint
 make test         # unit tests (no Docker required)
 make test-integration  # needs Docker running
-make build        # produces bin/chaos
+make build        # produces bin/makakito
 ```
 
 **Adding a fault:**

@@ -6,17 +6,14 @@ import (
 	"context"
 	"testing"
 
+	"github.com/CyberArgonaut/makakito/internal/docker"
 	"github.com/CyberArgonaut/makakito/internal/engine"
-	dockerclient "github.com/docker/docker/client"
 )
 
 // TestDockerTargetIntegration tests with a real Docker daemon.
 // Requires Docker to be running. Run with: go test -tags=integration ./internal/target/...
 func TestDockerTargetIntegration(t *testing.T) {
-	cli, err := dockerclient.NewClientWithOpts(
-		dockerclient.FromEnv,
-		dockerclient.WithAPIVersionNegotiation(),
-	)
+	cli, err := docker.NewClientFromEnv()
 	if err != nil {
 		t.Skipf("docker client unavailable: %v", err)
 	}

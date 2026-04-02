@@ -29,7 +29,7 @@ var rollbackCmd = &cobra.Command{
 		// Full manual rollback (persisting rollback state) is a v0.2 feature.
 		fmt.Printf("Experiment %q (status: %s)\n", result.Name, result.Status)
 		fmt.Println("Note: manual rollback of completed experiments is not yet implemented.")
-		fmt.Println("If the experiment is still running, send SIGINT to the chaos process.")
+		fmt.Println("If the experiment is still running, send SIGINT to the makakito process.")
 		return nil
 	},
 }
