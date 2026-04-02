@@ -21,7 +21,7 @@ import (
 
 var runCmd = &cobra.Command{
 	Use:   "run <file>",
-	Short: "Execute a chaos experiment",
+	Short: "Execute an experiment",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		dryRun, _ := cmd.Flags().GetBool("dry-run")
